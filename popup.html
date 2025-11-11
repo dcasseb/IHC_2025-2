@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Auditor de Acessibilidade Web</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        width: 400px;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h3 {
+        margin: 0 0 15px 0;
+        color: #333;
+        text-align: center;
+        font-size: 18px;
+      }
+      .website-info {
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-size: 12px;
+        color: #555;
+        text-align: center;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+        transition: transform 0.2s;
+      }
+      button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      button:active {
+        transform: scale(0.98);
+      }
+      .contrast-controls {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+      }
+      .contrast-controls h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 14px;
+        text-align: center;
+      }
+      .contrast-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .contrast-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+        background: white;
+        color: #333;
+        border: 2px solid #dee2e6;
+        border-radius: 5px;
+        font-weight: normal;
+        transition: all 0.2s;
+      }
+      .contrast-btn:hover {
+        background: #e9ecef;
+        border-color: #667eea;
+        transform: scale(1);
+      }
+      .contrast-btn:active {
+        transform: scale(0.95);
+      }
+      .contrast-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        font-weight: bold;
+      }
+      #results {
+        margin-top: 20px;
+      }
+      #score {
+        font-size: 1.3em;
+        font-weight: bold;
+        margin-bottom: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        text-align: center;
+        color: #333;
+      }
+      .score-excellent {
+        background: #d4edda !important;
+        color: #155724 !important;
+        border: 2px solid #c3e6cb;
+      }
+      .score-warning {
+        background: #fff3cd !important;
+        color: #856404 !important;
+        border: 2px solid #ffeaa7;
+      }
+      .score-error {
+        background: #f8d7da !important;
+        color: #721c24 !important;
+        border: 2px solid #f5c6cb;
+      }
+      .summary {
+        margin: 15px 0;
+        padding: 10px;
+        background: #e9ecef;
+        border-radius: 5px;
+        font-size: 13px;
+        color: #333;
+      }
+      .summary strong {
+        color: #667eea;
+      }
+      ul {
+        padding-left: 20px;
+        max-height: 250px;
+        overflow-y: auto;
+        margin: 0;
+      }
+      li {
+        color: #721c24;
+        margin-bottom: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+        padding: 8px;
+        background: #fff;
+        border-left: 3px solid #dc3545;
+        border-radius: 3px;
+      }
+      li.success {
+        color: #155724;
+        border-left-color: #28a745;
+        background: #d4edda;
+      }
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #667eea;
+      }
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h3>🔍 Auditor de Acessibilidade Web</h3>
+      <div class="website-info" id="currentUrl">
+        🌐 Analisando: <strong id="urlDisplay">Carregando...</strong>
+      </div>
+      <button id="auditButton">🚀 Analisar Página Atual</button>
+      
+      <!-- Controles de Contraste -->
+      <div class="contrast-controls">
+        <h4>🎨 Controle de Contraste</h4>
+        <div class="contrast-buttons">
+          <button class="contrast-btn" id="normalContrast" title="Contraste Normal">Normal</button>
+          <button class="contrast-btn" id="highContrast" title="Alto Contraste - Texto preto sobre fundo branco">Alto</button>
+          <button class="contrast-btn" id="darkMode" title="Modo Escuro - Texto branco sobre fundo preto">Escuro</button>
+          <button class="contrast-btn" id="yellowBlack" title="Texto preto sobre fundo amarelo">Amarelo</button>
+        </div>
+      </div>
+      
+      <div id="results">
+        <div id="score"></div>
+        <div id="summary"></div>
+        <ul id="errorList"></ul>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

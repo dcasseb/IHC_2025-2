@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Auditor de Acessibilidade Web",
+  "version": "1.0",
+  "description": "Audita qualquer website com base em critérios da WCAG e oferece controles de contraste.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icon.png"
+    }
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}
