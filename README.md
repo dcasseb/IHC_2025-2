@@ -104,6 +104,14 @@ agiel_accessibility_plugin/
 
 Desenvolvido para a disciplina de **Interação Humano-Computador (IHC)** da **Universidade de Brasília (UnB)**.
 
+## Colaboradores
+
+[Davi Araújo Bady Casseb]
+[Diogo Balbino Ferreira]
+[Estevão Magalhães Monteiro]
+[João Lucas Ramos dos Reis]
+[Renan dos Santos Ribeiro]
+
 ## Licença
 
 Projeto educacional de código aberto. Livre para uso e modificação.
