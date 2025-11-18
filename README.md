@@ -1,10 +1,10 @@
 # Auditor de Acessibilidade Agiel
 
-Extensão Chrome personalizada para auditoria de acessibilidade do website **www.agiel.com.br**, baseada nas Diretrizes de Acessibilidade para Conteúdo Web (WCAG).
+Extensão Chrome personalizada para auditoria de acessibilidade de websites, especializado para o website **www.agiel.com.br**, baseada nas Diretrizes de Acessibilidade para Conteúdo Web (WCAG). A extensão pode ser utilizada em outros websites.
 
 ## Sobre o Projeto
 
-Esta extensão foi desenvolvida especificamente para analisar e auditar a acessibilidade do website da Agiel - Agência de Estágios. A ferramenta verifica 7 critérios importantes da WCAG e fornece um relatório detalhado com erros críticos, avisos e sucessos.
+Esta extensão foi desenvolvida especificamente para analisar e auditar a acessibilidade de websites, mas focamos neste semestre em auditar o website da Agiel - Agência de Estágios. A ferramenta verifica 7 critérios importantes da WCAG e fornece um relatório detalhado com erros críticos, avisos e sucessos.
 
 ### Critérios Avaliados
 
