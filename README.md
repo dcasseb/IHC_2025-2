@@ -106,11 +106,11 @@ Desenvolvido para a disciplina de **Interação Humano-Computador (IHC)** da **U
 
 ## Colaboradores
 
-- Davi Araújo Bady Casseb
-- Diogo Balbino Ferreira
-- Estevão Magalhães Monteiro
-- João Lucas Ramos dos Reis
-- Renan dos Santos Ribeiro
+- Davi Araújo Bady Casseb [211031682]
+- Diogo Balbino Ferreira [221008570]
+- Estevão Magalhães Monteiro [211061681]
+- João Lucas Ramos dos Reis [211061930]
+- Renan dos Santos Ribeiro [221022435]
 
 ## Licença
 
