@@ -31,11 +31,14 @@ function runAccessibilityAudit() {
   // ---
   const htmlLang = document.documentElement.lang;
   if (!htmlLang || htmlLang.trim() === '') {
+    document.documentElement.dataset.agielErrorId = 'html-no-lang';
     results.errors.push({
       criterion: '3.1.1',
       level: 'A',
       name: 'Idioma da Página',
-      message: "A tag <html> não possui um atributo 'lang' válido. Isso dificulta a leitura por leitores de tela."
+      message: "A tag <html> não possui um atributo 'lang' válido. Isso dificulta a leitura por leitores de tela.",
+      elementId: 'html-no-lang',
+      elementType: 'html'
     });
     results.passedCriteria--;
   } else {
@@ -56,11 +59,15 @@ function runAccessibilityAudit() {
   images.forEach((img, index) => {
     if (!img.hasAttribute('alt')) {
       const src = img.src.length > 60 ? img.src.substring(0, 60) + '...' : img.src;
+      // Gerar seletor único para o elemento
+      img.dataset.agielErrorId = `img-no-alt-${index}`;
       results.errors.push({
         criterion: '1.1.1',
         level: 'A',
         name: 'Conteúdo Não Textual',
-        message: `Imagem ${index + 1} sem atributo 'alt': ${src || 'sem src'}`
+        message: `Imagem ${index + 1} sem atributo 'alt': ${src || 'sem src'}`,
+        elementId: `img-no-alt-${index}`,
+        elementType: 'img'
       });
       imagesWithoutAlt++;
     } else if (img.alt.trim() === '') {
@@ -87,17 +94,20 @@ function runAccessibilityAudit() {
   );
 
   let keyboardIssues = 0;
-  nonInteractiveClickables.forEach((el) => {
+  nonInteractiveClickables.forEach((el, index) => {
     const tabIndex = el.getAttribute('tabindex');
     const isFocusable = tabIndex !== null && parseInt(tabIndex, 10) >= 0;
     const role = el.getAttribute('role');
 
     if (!isFocusable) {
+      el.dataset.agielErrorId = `keyboard-${index}`;
       results.errors.push({
         criterion: '2.1.1',
         level: 'A',
         name: 'Teclado',
-        message: `Elemento <${el.tagName.toLowerCase()}> com evento onclick não é acessível via teclado (falta tabindex="0")`
+        message: `Elemento <${el.tagName.toLowerCase()}> com evento onclick não é acessível via teclado (falta tabindex="0")`,
+        elementId: `keyboard-${index}`,
+        elementType: el.tagName.toLowerCase()
       });
       keyboardIssues++;
     }
@@ -123,11 +133,14 @@ function runAccessibilityAudit() {
     const ariaLabel = link.getAttribute('aria-label');
     
     if (!text && !ariaLabel && !link.querySelector('img[alt]')) {
+      link.dataset.agielErrorId = `link-no-text-${index}`;
       results.warnings.push({
         criterion: '1.4.3 / 2.4.4',
         level: 'AA / A',
         name: 'Contraste e Propósito do Link',
-        message: `Link ${index + 1} sem texto visível ou aria-label: ${link.href || 'sem href'}`
+        message: `Link ${index + 1} sem texto visível ou aria-label: ${link.href || 'sem href'}`,
+        elementId: `link-no-text-${index}`,
+        elementType: 'a'
       });
       linksWithoutVisibleText++;
     }
@@ -154,11 +167,15 @@ function runAccessibilityAudit() {
   );
 
   if (!hasSkipToContent) {
+    const nav = document.querySelector('nav, header, [role="navigation"]');
+    if (nav) nav.dataset.agielErrorId = 'skip-link-missing';
     results.warnings.push({
       criterion: '2.4.1',
       level: 'A',
       name: 'Ignorar Blocos',
-      message: 'Não foi encontrado um link "pular para conteúdo principal". Isso ajuda usuários de teclado/leitores de tela.'
+      message: 'Não foi encontrado um link "pular para conteúdo principal". Isso ajuda usuários de teclado/leitores de tela.',
+      elementId: nav ? 'skip-link-missing' : null,
+      elementType: nav ? nav.tagName.toLowerCase() : null
     });
   } else {
     results.successes.push({
@@ -173,18 +190,24 @@ function runAccessibilityAudit() {
   const h1s = document.querySelectorAll('h1');
   
   if (h1s.length === 0) {
+    document.body.dataset.agielErrorId = 'no-h1';
     results.warnings.push({
       criterion: '1.3.1',
       level: 'A',
       name: 'Informações e Relações',
-      message: 'Página sem tag <h1>. Toda página deve ter um cabeçalho principal para estruturação adequada.'
+      message: 'Página sem tag <h1>. Toda página deve ter um cabeçalho principal para estruturação adequada.',
+      elementId: 'no-h1',
+      elementType: 'body'
     });
   } else if (h1s.length > 1) {
+    h1s.forEach((h1, idx) => h1.dataset.agielErrorId = `multiple-h1-${idx}`);
     results.warnings.push({
       criterion: '1.3.1',
       level: 'A',
       name: 'Informações e Relações',
-      message: `Página possui ${h1s.length} tags <h1>. Recomenda-se apenas um <h1> por página.`
+      message: `Página possui ${h1s.length} tags <h1>. Recomenda-se apenas um <h1> por página.`,
+      elementId: 'multiple-h1-0',
+      elementType: 'h1'
     });
   } else {
     results.successes.push({
@@ -199,19 +222,27 @@ function runAccessibilityAudit() {
   const pageTitle = document.title;
   
   if (!pageTitle || pageTitle.trim() === '') {
+    const titleEl = document.querySelector('title') || document.head;
+    if (titleEl) titleEl.dataset.agielErrorId = 'no-title';
     results.errors.push({
       criterion: '2.4.2',
       level: 'A',
       name: 'Título da Página',
-      message: 'Página sem título (<title>). O título é essencial para identificação da página.'
+      message: 'Página sem título (<title>). O título é essencial para identificação da página.',
+      elementId: 'no-title',
+      elementType: 'title'
     });
     results.passedCriteria--;
   } else if (pageTitle.length < 10) {
+    const titleEl = document.querySelector('title');
+    if (titleEl) titleEl.dataset.agielErrorId = 'short-title';
     results.warnings.push({
       criterion: '2.4.2',
       level: 'A',
       name: 'Título da Página',
-      message: 'Título da página muito curto. Recomenda-se um título mais descritivo.'
+      message: 'Título da página muito curto. Recomenda-se um título mais descritivo.',
+      elementId: 'short-title',
+      elementType: 'title'
     });
   } else {
     results.successes.push({
@@ -237,11 +268,14 @@ function runAccessibilityAudit() {
       const hasPlaceholder = input.getAttribute('placeholder');
       
       if (!hasLabel && !hasAriaLabel && !hasAriaLabelledby) {
+        input.dataset.agielErrorId = `form-input-${formsWithoutLabels}`;
         results.warnings.push({
           criterion: '3.3.2',
           level: 'A',
           name: 'Rótulos ou Instruções',
-          message: `Campo de formulário (${input.type || input.tagName}) sem rótulo associado. ${hasPlaceholder ? 'Placeholder não substitui label.' : ''}`
+          message: `Campo de formulário (${input.type || input.tagName}) sem rótulo associado. ${hasPlaceholder ? 'Placeholder não substitui label.' : ''}`,
+          elementId: `form-input-${formsWithoutLabels}`,
+          elementType: input.tagName.toLowerCase()
         });
         formsWithoutLabels++;
       }
@@ -269,6 +303,183 @@ function runAccessibilityAudit() {
   };
 
   return results;
+}
+
+/**
+ * Função para destacar elementos com erros na página
+ * @param {boolean} show - Se deve mostrar ou esconder os highlights
+ */
+function highlightAccessibilityErrors(show) {
+  // Remove highlights anteriores
+  const existingStyle = document.getElementById('agiel-highlight-style');
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+  
+  // Remove overlays anteriores
+  const existingOverlays = document.querySelectorAll('.agiel-error-overlay');
+  existingOverlays.forEach(overlay => overlay.remove());
+  
+  // Remove badges anteriores
+  const existingBadges = document.querySelectorAll('.agiel-error-badge');
+  existingBadges.forEach(badge => badge.remove());
+
+  if (!show) return;
+
+  // Adiciona estilos de highlight
+  const style = document.createElement('style');
+  style.id = 'agiel-highlight-style';
+  style.textContent = `
+    [data-agiel-error-id] {
+      outline: 3px solid #dc3545 !important;
+      outline-offset: 2px !important;
+      position: relative !important;
+    }
+    
+    .agiel-error-overlay {
+      position: absolute;
+      background: rgba(220, 53, 69, 0.15);
+      border: 2px dashed #dc3545;
+      pointer-events: none;
+      z-index: 999999;
+      box-sizing: border-box;
+    }
+    
+    .agiel-error-badge {
+      position: absolute;
+      background: #dc3545;
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 3px;
+      z-index: 1000000;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .agiel-warning-badge {
+      background: #ffc107 !important;
+      color: #000 !important;
+    }
+    
+    [data-agiel-error-id].agiel-warning-highlight {
+      outline-color: #ffc107 !important;
+    }
+    
+    .agiel-error-overlay.agiel-warning-overlay {
+      background: rgba(255, 193, 7, 0.15);
+      border-color: #ffc107;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Encontra todos os elementos marcados com erros
+  const errorElements = document.querySelectorAll('[data-agiel-error-id]');
+  
+  errorElements.forEach((el, index) => {
+    const rect = el.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    
+    // Cria badge com informação do erro
+    const badge = document.createElement('div');
+    badge.className = 'agiel-error-badge';
+    badge.textContent = `⚠ Erro ${index + 1}`;
+    badge.style.top = (rect.top + scrollTop - 20) + 'px';
+    badge.style.left = (rect.left + scrollLeft) + 'px';
+    
+    // Verifica se o elemento está visível
+    if (rect.width > 0 && rect.height > 0) {
+      document.body.appendChild(badge);
+    }
+  });
+}
+
+/**
+ * Função para scrollar até um elemento específico
+ * @param {string} elementId - ID do elemento de erro
+ */
+function scrollToErrorElement(elementId) {
+  const element = document.querySelector(`[data-agiel-error-id="${elementId}"]`);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Adiciona efeito de pulse temporário
+    const originalOutline = element.style.outline;
+    element.style.outline = '4px solid #ff0000';
+    element.style.outlineOffset = '4px';
+    
+    // Cria overlay temporário para destacar
+    const rect = element.getBoundingClientRect();
+    const overlay = document.createElement('div');
+    overlay.className = 'agiel-pulse-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: ${rect.top - 10}px;
+      left: ${rect.left - 10}px;
+      width: ${rect.width + 20}px;
+      height: ${rect.height + 20}px;
+      border: 4px solid #dc3545;
+      border-radius: 8px;
+      animation: agielPulse 1.5s ease-out;
+      pointer-events: none;
+      z-index: 1000001;
+    `;
+    
+    // Adiciona keyframes se não existir
+    if (!document.getElementById('agiel-pulse-keyframes')) {
+      const keyframes = document.createElement('style');
+      keyframes.id = 'agiel-pulse-keyframes';
+      keyframes.textContent = `
+        @keyframes agielPulse {
+          0% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.1); opacity: 0.7; }
+          100% { transform: scale(1.2); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(keyframes);
+    }
+    
+    document.body.appendChild(overlay);
+    
+    // Remove após animação
+    setTimeout(() => {
+      overlay.remove();
+      element.style.outline = originalOutline || '';
+      element.style.outlineOffset = '';
+    }, 1500);
+    
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Função para limpar todos os marcadores de erro
+ */
+function clearErrorMarkers() {
+  // Remove data attributes
+  const errorElements = document.querySelectorAll('[data-agiel-error-id]');
+  errorElements.forEach(el => {
+    delete el.dataset.agielErrorId;
+  });
+  
+  // Remove estilos
+  const style = document.getElementById('agiel-highlight-style');
+  if (style) style.remove();
+  
+  // Remove badges
+  const badges = document.querySelectorAll('.agiel-error-badge');
+  badges.forEach(b => b.remove());
+  
+  // Remove overlays
+  const overlays = document.querySelectorAll('.agiel-error-overlay, .agiel-pulse-overlay');
+  overlays.forEach(o => o.remove());
 }
 
 /**
@@ -390,6 +601,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const contrastButtons = [normalContrastBtn, highContrastBtn, darkModeBtn, yellowBlackBtn];
 
+  // Botões de highlight
+  const highlightSection = document.getElementById('highlightSection');
+  const toggleHighlightBtn = document.getElementById('toggleHighlight');
+  const clearHighlightBtn = document.getElementById('clearHighlight');
+  const highlightIcon = document.getElementById('highlightIcon');
+  const highlightText = document.getElementById('highlightText');
+  
+  let isHighlightActive = false;
+  let currentAuditData = null;
+
   // Função para atualizar botão ativo
   function setActiveContrastButton(activeButton) {
     contrastButtons.forEach(btn => btn.classList.remove('active'));
@@ -474,11 +695,81 @@ document.addEventListener('DOMContentLoaded', () => {
     setActiveContrastButton(yellowBlackBtn);
   });
 
+  // Event listener para toggle de highlight
+  toggleHighlightBtn.addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    isHighlightActive = !isHighlightActive;
+    
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: highlightAccessibilityErrors,
+      args: [isHighlightActive]
+    });
+    
+    if (isHighlightActive) {
+      toggleHighlightBtn.classList.add('active');
+      highlightIcon.textContent = '✅';
+      highlightText.textContent = 'Marcações Ativas';
+    } else {
+      toggleHighlightBtn.classList.remove('active');
+      highlightIcon.textContent = '📍';
+      highlightText.textContent = 'Marcar Erros na Página';
+    }
+  });
+
+  // Event listener para limpar highlights
+  clearHighlightBtn.addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: clearErrorMarkers
+    });
+    
+    isHighlightActive = false;
+    toggleHighlightBtn.classList.remove('active');
+    highlightIcon.textContent = '📍';
+    highlightText.textContent = 'Marcar Erros na Página';
+  });
+
+  // Função para criar item de erro clicável
+  async function createClickableErrorItem(error, isWarning = false) {
+    const li = document.createElement('li');
+    
+    if (isWarning) {
+      li.style.borderLeftColor = '#ffc107';
+      li.style.background = '#fff3cd';
+      li.style.color = '#856404';
+    }
+    
+    li.innerHTML = `<strong>[${error.criterion} - Nível ${error.level}]</strong> ${error.name}<br>${error.message}`;
+    
+    // Se o erro tiver um elemento associado, torna clicável
+    if (error.elementId) {
+      li.classList.add('clickable');
+      li.addEventListener('click', async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          function: scrollToErrorElement,
+          args: [error.elementId]
+        });
+      });
+    }
+    
+    return li;
+  }
+
   auditButton.addEventListener('click', async () => {
     // Limpa resultados anteriores
     scoreEl.innerHTML = '<div class="loading"><div class="spinner"></div>Analisando página...</div>';
     summaryEl.innerHTML = '';
     errorListEl.innerHTML = '';
+    
+    // Esconde seção de highlight até ter resultados
+    highlightSection.style.display = 'none';
+    isHighlightActive = false;
 
     // Pega a aba ativa
     const [tab] = await chrome.tabs.query({
@@ -529,6 +820,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Exibe os Erros e Avisos
       errorListEl.innerHTML = '';
+      
+      // Armazena dados da auditoria para uso posterior
+      currentAuditData = auditData;
+      
+      // Mostra seção de highlight se houver erros ou avisos
+      if (auditData.errors.length > 0 || auditData.warnings.length > 0) {
+        highlightSection.style.display = 'flex';
+        toggleHighlightBtn.classList.remove('active');
+        highlightIcon.textContent = '📍';
+        highlightText.textContent = 'Marcar Erros na Página';
+      }
 
       // Sucessos primeiro (se houver)
       if (auditData.successes.length > 0 && auditData.errors.length === 0 && auditData.warnings.length === 0) {
@@ -550,11 +852,10 @@ document.addEventListener('DOMContentLoaded', () => {
         errorHeader.textContent = `🚨 ERROS CRÍTICOS (${auditData.errors.length})`;
         errorListEl.appendChild(errorHeader);
 
-        auditData.errors.forEach((error) => {
-          const li = document.createElement('li');
-          li.innerHTML = `<strong>[${error.criterion} - Nível ${error.level}]</strong> ${error.name}<br>${error.message}`;
+        for (const error of auditData.errors) {
+          const li = await createClickableErrorItem(error, false);
           errorListEl.appendChild(li);
-        });
+        }
       }
 
       // Avisos
@@ -567,14 +868,10 @@ document.addEventListener('DOMContentLoaded', () => {
         warningHeader.textContent = `⚠️ AVISOS (${auditData.warnings.length})`;
         errorListEl.appendChild(warningHeader);
 
-        auditData.warnings.forEach((warning) => {
-          const li = document.createElement('li');
-          li.style.borderLeftColor = '#ffc107';
-          li.style.background = '#fff3cd';
-          li.style.color = '#856404';
-          li.innerHTML = `<strong>[${warning.criterion} - Nível ${warning.level}]</strong> ${warning.name}<br>${warning.message}`;
+        for (const warning of auditData.warnings) {
+          const li = await createClickableErrorItem(warning, true);
           errorListEl.appendChild(li);
-        });
+        }
       }
 
       // Mensagem de sucesso total

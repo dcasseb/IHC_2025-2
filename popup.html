@@ -51,6 +51,46 @@
       button:active {
         transform: scale(0.98);
       }
+      .highlight-controls {
+        margin-top: 15px;
+        padding: 10px;
+        background: #e8f4f8;
+        border-radius: 8px;
+        border: 2px solid #17a2b8;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .highlight-btn {
+        padding: 10px 15px;
+        font-size: 13px;
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .highlight-btn:hover {
+        transform: scale(1.02);
+        box-shadow: 0 2px 6px rgba(23, 162, 184, 0.4);
+      }
+      .highlight-btn.active {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+      }
+      .highlight-btn.clear-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+      .highlight-btn.clear-btn:hover {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      }
       .contrast-controls {
         margin-top: 15px;
         padding: 15px;
@@ -153,6 +193,22 @@
         border-left-color: #28a745;
         background: #d4edda;
       }
+      li.clickable {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      li.clickable:hover {
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      }
+      li.clickable::after {
+        content: '👆 Clique para ver';
+        display: block;
+        font-size: 10px;
+        color: #6c757d;
+        margin-top: 4px;
+        font-style: italic;
+      }
       .loading {
         text-align: center;
         padding: 20px;
@@ -180,6 +236,17 @@
         🌐 Analisando: <strong id="urlDisplay">Carregando...</strong>
       </div>
       <button id="auditButton">🚀 Analisar Página Atual</button>
+      
+      <!-- Controle de Marcação de Erros -->
+      <div class="highlight-controls" id="highlightSection" style="display: none;">
+        <button class="highlight-btn" id="toggleHighlight">
+          <span id="highlightIcon">📍</span>
+          <span id="highlightText">Marcar Erros na Página</span>
+        </button>
+        <button class="highlight-btn clear-btn" id="clearHighlight" title="Limpar todas as marcações">
+          🗑️ Limpar Marcações
+        </button>
+      </div>
       
       <!-- Controles de Contraste -->
       <div class="contrast-controls">
